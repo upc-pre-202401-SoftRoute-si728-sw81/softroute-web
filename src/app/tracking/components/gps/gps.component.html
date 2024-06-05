@@ -1,8 +1,15 @@
 <p>gps works!</p>
-<!-- <google-map  -->
-<!--   height="400px" -->
-<!--   width="750px" -->
-<!--   [center]="center" -->
-<!--   [zoom]="zoom" -->
-<!-- /> -->
+<p>latitude: {{latitude}}</p>
+<p>longitude: {{longitude}}</p>
+<google-map
+  height="400px"
+  width="750px"
+  [center]="center"
+  [zoom]="zoom"
+  mapId="map"
+>
+  @for (position of markerPositions; track position) {
+    <map-advanced-marker [position]="position" />
+  }
+</google-map>
 

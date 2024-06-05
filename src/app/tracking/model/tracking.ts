@@ -1,4 +1,4 @@
-interface Tracking {
+export interface Tracking {
   id: string;
   deviceId: string;
   trackingNumber: string;
@@ -8,5 +8,6 @@ interface Tracking {
     statusDetails: string;
     statusDate: string;
   };
+  location: Location;
 }
 

@@ -1,28 +1,34 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { TrackingService } from '../../service/tracking.service';
-import { GoogleMap } from '@angular/google-maps';
+import { GoogleMap, MapAdvancedMarker } from '@angular/google-maps';
+import { Tracking } from '../../model/tracking';
 
 @Component({
   selector: 'app-gps',
   standalone: true,
-  imports: [GoogleMap],
+  imports: [GoogleMap, MapAdvancedMarker],
   templateUrl: './gps.component.html',
   styleUrl: './gps.component.css'
 })
 export class GpsComponent implements OnInit, OnDestroy {
   public positions: any[] = [];
   private topicSubscription!: Subscription;
-  // center: google.maps.LatLngLiteral = { lat: 24, lng: 12 };
-  // zoom = 4;
+  center: google.maps.LatLngLiteral = { lat: -12.102085161346752, lng: -76.96294861993864 };
+  zoom = 15;
+  latitude = 0;
+  longitude = 0;
+  markerPositions: google.maps.LatLngLiteral[] = [{ lat: -12.103907323663309, lng: -76.96375149242841 }];
 
   constructor(private trackingService: TrackingService) { }
 
   public ngOnInit(): void {
     this.trackingService.connect().then(() => {
-      this.topicSubscription = this.trackingService.subscribe("/topic/tracking").subscribe({
+      this.topicSubscription = this.trackingService.subscribe("/topic/tracking/TRK1234").subscribe({
         next: (message) => {
           this.positions.push(message);
+          this.latitude = message.latitude;
+          this.longitude = message.longitude;
           console.log('Received message: ', message);
         },
         error: (error) => {
