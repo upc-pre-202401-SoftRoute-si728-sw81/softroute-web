@@ -1,11 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subscription } from 'rxjs';
-import { TrackingService } from '../../service/tracking.service';
+import { Component, Input, SimpleChanges, OnChanges } from '@angular/core';
 import { GoogleMap, MapAdvancedMarker } from '@angular/google-maps';
-import { Tracking } from '../../model/tracking';
-import { Location } from '../../model/location'
 import { ButtonModule } from 'primeng/button';
-import { GpsService } from './gps.service';
+import { Location } from '../../model/location';
 
 @Component({
   selector: 'app-gps',
@@ -14,42 +10,22 @@ import { GpsService } from './gps.service';
   templateUrl: './gps.component.html',
   styleUrl: './gps.component.css'
 })
-export class GpsComponent implements OnInit, OnDestroy {
-  private topicSubscription!: Subscription;
-  center!: google.maps.LatLngLiteral;
-  zoom = 15;
+export class GpsComponent implements OnChanges {
+  @Input() location!: Location | null;
   latitude!: number;
   longitude!: number;
+  center!: google.maps.LatLngLiteral;
+  zoom = 15;
   markerPositions: google.maps.LatLngLiteral[] = [];
 
-  constructor(private trackingService: TrackingService) { }
-
-  public ngOnInit(): void {
-    this.trackingService.connect().then(() => {
-      this.topicSubscription = this.trackingService.subscribe("/topic/tracking/TRK1234").subscribe({
-        next: (trackingData) => {
-          this.latitude = trackingData.location.latitude;
-          this.longitude = trackingData.location.longitude;
-          this.center = { lat: trackingData.location.latitude, lng: trackingData.location.longitude };
-          if (this.markerPositions.length >= 1) {
-            this.markerPositions.pop();
-          };
-          this.markerPositions.push({ lat: trackingData.location.latitude, lng: trackingData.location.longitude });
-          console.log('Received message: ', trackingData);
-        },
-        error: (error) => {
-          console.error('Subscription error: ', error);
-        }
-      });
-    }).catch(error => {
-      console.error("Connection error: ", error);
-    });
-  };
-
-  public ngOnDestroy() {
-    if (this.topicSubscription) {
-      this.topicSubscription.unsubscribe();
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['location'] && changes['location'].currentValue) {
+      this.latitude = this.location?.latitude ?? 0;
+      this.longitude = this.location?.longitude ?? 0;
+      this.center = { lat: this.location?.latitude ?? 0 , lng: this.location?.longitude ?? 0 };
+      if (this.markerPositions.length > 0) this.markerPositions.pop();
+      this.markerPositions.push({ lat: this.location?.latitude ?? 0, lng: this.location?.longitude ?? 0 });
     }
-  };
+  }
 }
 

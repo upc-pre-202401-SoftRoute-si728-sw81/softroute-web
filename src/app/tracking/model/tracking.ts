@@ -5,7 +5,7 @@ export interface Tracking {
   id: string;
   deviceId: string;
   trackingNumber: string;
-  trackingStatus: TrackingStatus;
+  status: TrackingStatus;
   location: Location;
 }
 
