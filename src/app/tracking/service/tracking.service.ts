@@ -15,12 +15,12 @@ export class TrackingService {
 
   constructor() {
     this.client = new Client({
-      brokerURL: "http://35.196.232.123:8081/ws",
+      brokerURL: "",
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
       webSocketFactory: () => {
-        return new SockJS("http://35.196.232.123:8081/ws");
+        return new SockJS("");
       }
     });
 
