@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
-import { Client, Frame, Message, Stomp, StompSubscription } from '@stomp/stompjs';
+import { Client, Frame, Message, StompSubscription } from '@stomp/stompjs';
 import { Observable, Observer } from 'rxjs';
 import SockJS from 'sockjs-client';
+import { Tracking } from '../model/tracking';
 
 @Injectable({
   providedIn: 'root'
@@ -45,8 +46,8 @@ export class TrackingService {
     return this.connectionPromise;
   };
 
-  public subscribe(topic: string): Observable<any> {
-    return new Observable((observer: Observer<any>) => {
+  public subscribe(topic: string): Observable<Tracking> {
+    return new Observable((observer: Observer<Tracking>) => {
       this.subscription = this.client.subscribe(topic, (message: Message) => {
         observer.next(JSON.parse(message.body));
       });
