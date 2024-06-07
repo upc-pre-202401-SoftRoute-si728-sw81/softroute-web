@@ -1,0 +1,168 @@
+<div class="grid">
+  <div class="col-12">
+    <p-toast></p-toast>
+    <div class="card flex justify-content-between">
+      <div>
+        <h4>Packages Management</h4>
+        <p>Manage all your packages</p>
+      </div>
+      <button
+        pButton
+        pRipple
+        label="New package"
+        icon="pi pi-plus"
+        (click)="openAddDialog()"
+      ></button>
+    </div>
+
+    <div class="card">
+      <p-table
+        [value]="packages()"
+        [paginator]="true"
+        [rows]="8"
+        responsiveLayout="scroll"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>#</th>
+            <th>Customer</th>
+            <th>Description</th>
+            <th>Details</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-package>
+          <tr>
+            <td style="min-width: 3rem">1</td>
+
+            <td style="min-width: 12rem">
+              <span class="font-bold">
+                <p>{{ package.owner.names }} {{ package.owner.surnames }}</p>
+              </span>
+              <span>
+                <p>(+51) {{ package.owner.phoneNumber }}</p>
+              </span>
+              <span>{{ package.owner.email }} </span>
+            </td>
+            <td style="min-width: 6rem">
+              {{ package.description }}
+            </td>
+            <td style="min-width: 12rem">
+              <ul style="padding: 0">
+                <li>
+                  <strong>Weight:</strong> {{ package.details.weight }} kg
+                </li>
+                <li><strong>Height:</strong> {{ package.details.height }} m</li>
+                <li><strong>Width:</strong> {{ package.details.width }} m</li>
+                <li><strong>Length:</strong> {{ package.details.length }} m</li>
+              </ul>
+            </td>
+            <td style="min-width: 4rem">
+              <span [class]="'package-badge status-' + package.status">{{
+                package.status
+              }}</span>
+            </td>
+            <td>
+              <i class="pi pi-trash"></i>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7">No packages found.</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="loadingbody">
+          <tr>
+            <td colspan="7">Loading packages data. Please wait.</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+</div>
+
+<p-dialog
+  [(visible)]="packageDialog"
+  [style]="{ width: '450px' }"
+  header="Add Package"
+  [modal]="true"
+  class="p-fluid"
+>
+  <ng-template pTemplate="content">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="field mb-3">
+        <label for="description">Description</label>
+        <textarea
+          id="description"
+          type="text"
+          pInputTextarea
+          rows="2"
+          cols="20"
+          formControlName="description"
+        ></textarea>
+        <div
+          *ngIf="
+            form.get('description')?.invalid && form.get('description')?.touched
+          "
+        >
+          <small class="p-error">Description is required.</small>
+        </div>
+      </div>
+
+      <div class="field mb-3">
+        <label for="weight">Weight (kg)</label>
+        <input id="weight" type="number" pInputText formControlName="weight" />
+        <div *ngIf="form.get('weight')?.invalid && form.get('weight')?.touched">
+          <small class="p-error">Weight must be positive.</small>
+        </div>
+      </div>
+      <div class="field mb-3">
+        <label for="height">Height (m)</label>
+        <input id="height" type="number" pInputText formControlName="height" />
+        <div *ngIf="form.get('height')?.invalid && form.get('height')?.touched">
+          <small class="p-error">Height must be positive.</small>
+        </div>
+      </div>
+      <div class="field mb-3">
+        <label for="width">Width (m)</label>
+        <input id="width" type="number" pInputText formControlName="width" />
+        <div *ngIf="form.get('width')?.invalid && form.get('width')?.touched">
+          <small class="p-error">Width must be positive.</small>
+        </div>
+      </div>
+      <div class="field mb-3">
+        <label for="length">Length (m)</label>
+        <input id="length" type="number" pInputText formControlName="length" />
+        <div *ngIf="form.get('length')?.invalid && form.get('length')?.touched">
+          <small class="p-error">Length must be positive.</small>
+        </div>
+      </div>
+
+      <div class="field mb-3">
+        <label for="customer">Customer</label>
+        <p-autoComplete
+          formControlName="customer"
+          [forceSelection]="true"
+          [suggestions]="filteredCustomers()"
+          (completeMethod)="filterCustomer($event)"
+          [dropdown]="true"
+          field="names"
+        >
+          <ng-template let-customer pTemplate="item">
+            <div class="flex align-items-center">
+              {{ customer.names }} {{ customer.surnames }} -
+              {{ customer.dni }}
+            </div>
+          </ng-template>
+        </p-autoComplete>
+      </div>
+
+      <button
+        pButton
+        type="submit"
+        label="Create Package"
+        [disabled]="form.invalid"
+      ></button></form></ng-template
+></p-dialog>
