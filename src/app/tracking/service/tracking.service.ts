@@ -12,6 +12,8 @@ export class TrackingService {
   private subscription: StompSubscription | null = null;
   private connected: boolean = false;
   private connectionPromise: Promise<void>;
+  private retryLimit: number = 3;
+  private retryCount: number = 0;
 
   constructor() {
     this.client = new Client({
@@ -25,6 +27,13 @@ export class TrackingService {
     });
 
     this.connectionPromise = new Promise((resolve, reject) => {
+      this.client.beforeConnect = () => {
+        if (this.client.brokerURL === '') {
+          console.log("No brokerURL");
+          this.client.deactivate();
+        }
+      };
+
       this.client.onConnect = (frame: Frame) => {
         console.log("Connected" + frame);
         this.connected = true;
@@ -37,10 +46,23 @@ export class TrackingService {
         reject(frame);
       };
 
+      this.client.onWebSocketClose = (closeEvent: CloseEvent) => {
+        console.log('WebSocket connection closed with code:', closeEvent.code);
+
+        if (closeEvent.code !== 1000) {
+          if (this.retryCount >= this.retryLimit) {
+            console.error('Exceeded retry limit. Subscription failed.');
+            this.client.deactivate();
+          }
+          this.retryCount++;
+
+          console.log('Attempting to reconnect...', this.retryCount);
+        }
+      };
+
       this.client.activate();
     });
   }
-
 
   public connect(): Promise<void> {
     return this.connectionPromise;

@@ -5,6 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { TrackingService } from '../../service/tracking.service';
 import { Subscription } from 'rxjs';
 import { Tracking } from '../../model/tracking';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-tracking',
@@ -16,21 +17,23 @@ import { Tracking } from '../../model/tracking';
 export class TrackingComponent implements OnInit, OnDestroy {
   private topicSubscription!: Subscription;
   tracking!: Tracking;
-  constructor(private trackingService: TrackingService) { }
+  constructor(private route: ActivatedRoute, private trackingService: TrackingService) { }
 
   ngOnInit(): void {
-    this.trackingService.connect().then(() => {
-      this.topicSubscription = this.trackingService.subscribe("/topic/tracking/TRK1234").subscribe({
-        next: (trackingData) => {
-          this.tracking = trackingData;
-          console.log('Received message: ', trackingData);
-        },
-        error: (error) => {
-          console.error('Subscription error: ', error);
-        }
+    this.route.paramMap.subscribe((params) => {
+      this.trackingService.connect().then(() => {
+        this.topicSubscription = this.trackingService.subscribe(`/topic/tracking/${params.get("trackingNumber")}`).subscribe({
+          next: (trackingData) => {
+            this.tracking = trackingData;
+            console.log('Received message: ', trackingData);
+          },
+          error: (error) => {
+            console.error('Subscription error: ', error);
+          }
+        });
+      }).catch(error => {
+        console.error("Connection error: ", error);
       });
-    }).catch(error => {
-      console.error("Connection error: ", error);
     });
   }
 

@@ -1,0 +1,28 @@
+.tracking-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  margin: 20px;
+}
+
+.tracking-input-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.tracking-input {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.tracking-button {
+  width: auto;
+}
+
+.tracking-error-message {
+  color: red;
+  margin-top: 5px;
+  font-size: 14px;
+}

@@ -1,0 +1,12 @@
+<div class="card flex flex-column md:flex-row gap-3">
+  <p-inputGroup>
+      <input type="text" pInputText placeholder="Enter tracking number" [formControl]="trackingNumber"/>
+      <button type="button" pButton icon="pi pi-search" (click)="onSearch()"></button>
+  </p-inputGroup>
+  <div *ngIf="showValidationError && trackingNumber.hasError('required')">
+    The tracking number is required.
+  </div>
+  <div *ngIf="showValidationError && trackingNumber.hasError('minlength')">
+    The tracking number must be at least 4 characters long.
+  </div>
+</div>
