@@ -24,6 +24,7 @@ import { PackageReq } from '../../models/package-req';
 import { MessageService } from 'primeng/api';
 import { CustomerService } from '../../../organization/services/customer.service';
 import { Customer } from '../../../organization/models/customer';
+import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 
 @Component({
   selector: 'app-packages',
@@ -41,6 +42,7 @@ import { Customer } from '../../../organization/models/customer';
     ReactiveFormsModule,
     ToastModule,
     AutoCompleteModule,
+    DateFormatPipe,
   ],
   providers: [MessageService],
   templateUrl: './packages.component.html',

@@ -1,9 +1,100 @@
-<h1>Shipping information</h1>
-<div class="trak-info">
+<div class="grid nested-grid h-full">
+  <div class="col-12">
+    <p-panel header="Information" class="line-height-3 m-0">
+      <div class="grid">
+        <div class="col-12 md:col-4">
+          <ul style="list-style: none; padding: 0; margin: 0">
+            <li class="flex justify-content-between">
+              Driver: <span class="font-bold">Juan Carlos</span>
+            </li>
+            <li class="flex justify-content-between">
+              Destination: <span class="font-bold">Calle los Reyes 211</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="col-12 md:col-4">
+          <ul style="list-style: none; padding: 0; margin: 0">
+            <li class="flex justify-content-between">
+              Nro. Paquete: <span class="font-bold">PQT1234</span>
+            </li>
+            <li class="flex justify-content-between">
+              Nro Tracking:
+              <span class="font-bold">{{ tracking.trackingNumber }}</span>
+            </li>
+          </ul>
+        </div>
+        <div class="col-12 md:col-4">
+          <li class="flex justify-content-between align-items-center">
+            Status:
+            <span [class]="'package-badge status-IN_TRANSIT'" class="text-xl">
+              {{ tracking.status }}
+            </span>
+          </li>
+        </div>
+      </div>
+    </p-panel>
+  </div>
+  <div class="col-12 md:col-3">
+    <div class="grid">
+      <div class="col-12">
+        <p-panel header="Location" class="line-height-3 m-0">
+          <ul style="list-style: none; padding: 0; margin: 0">
+            <li>
+              Street
+              <h5>{{ tracking.street }}</h5>
+            </li>
+            <li>
+              District
+              <h5>{{ tracking.district }}</h5>
+            </li>
+            <li>
+              Province
+              <h5>{{ tracking.province }}</h5>
+            </li>
+            <li>
+              Country
+              <h5>{{ tracking.country }}</h5>
+            </li>
+            <li>
+              Date
+              <h5 class="mb-0">{{ tracking.timestamp | dateFormat }}</h5>
+            </li>
+          </ul>
+        </p-panel>
+      </div>
+      <div class="col-12">
+        <p-panel header="Package Status" class="line-height-3 m-0">
+          <ul style="list-style: none; padding: 0; margin: 0">
+            <li class="flex justify-content-between">
+              Temperature: <span class="font-bold"><h5>10.0°</h5></span>
+            </li>
+            <li class="flex justify-content-between">
+              Humidity:
+              <span class="font-bold"><h5 class="mb-0">14.0°</h5></span>
+            </li>
+          </ul>
+        </p-panel>
+      </div>
+      <div class="col-12">
+        <p-panel header="IoT Device" class="line-height-3 m-0">
+          <ul style="list-style: none; padding: 0; margin: 0">
+            <li class="flex justify-content-between align-items-center">
+              Status:
+              <span [class]="'package-badge status-DELIVERED'"> ONLINE </span>
+            </li>
+          </ul>
+        </p-panel>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 md:col-9">
+    <p-panel header="Map Tracking" class="line-height-3 m-0">
+      <google-map #map width="100%" mapId="map" [options]="options">
+        <map-advanced-marker [position]="markerPosition!" />
+        <map-polyline [options]="polylineOptions"> </map-polyline>
+      </google-map>
+    </p-panel>
+  </div>
 </div>
-
-<h2>Realtime localtion map</h2>
-<app-gps></app-gps>
-
-<h2>Current temperature and humidity</h2>
-<app-dth22></app-dth22>

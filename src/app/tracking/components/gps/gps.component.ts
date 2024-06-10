@@ -9,41 +9,52 @@ import { Tracking } from '../../model/tracking';
   standalone: true,
   imports: [GoogleMap, MapAdvancedMarker],
   templateUrl: './gps.component.html',
-  styleUrl: './gps.component.css'
+  styleUrl: './gps.component.css',
 })
-export class GpsComponent implements OnInit, OnDestroy {
-  public positions: any[] = [];
-  private topicSubscription!: Subscription;
-  center: google.maps.LatLngLiteral = { lat: -12.102085161346752, lng: -76.96294861993864 };
-  zoom = 15;
-  latitude = 0;
-  longitude = 0;
-  markerPositions: google.maps.LatLngLiteral[] = [{ lat: -12.103907323663309, lng: -76.96375149242841 }];
+export class GpsComponent /*implements OnInit, OnDestroy */ {
+  //private topicSubscription!: Subscription;
 
-  constructor(private trackingService: TrackingService) { }
+  markerPositions: google.maps.LatLngLiteral[] = [
+    { lat: -12.103907323663309, lng: -76.96375149242841 },
+  ];
+
+  options: google.maps.MapOptions = {
+    center: { lat: -12.102085161346752, lng: -76.96294861993864 },
+    streetViewControl: false,
+    mapTypeControl: false,
+    zoom: 15,
+  };
+
+  /*
+  constructor(private trackingService: TrackingService) {}
 
   public ngOnInit(): void {
-    this.trackingService.connect().then(() => {
-      this.topicSubscription = this.trackingService.subscribe("/topic/tracking/TRK1234").subscribe({
-        next: (message) => {
-          this.positions.push(message);
-          this.latitude = message.latitude;
-          this.longitude = message.longitude;
-          console.log('Received message: ', message);
-        },
-        error: (error) => {
-          console.error('Subscription error: ', error);
-        }
+    this.trackingService
+      .connect()
+      .then(() => {
+        this.topicSubscription = this.trackingService
+          .subscribe('/topic/tracking/TRK1234')
+          .subscribe({
+            next: (message) => {
+              this.positions.push(message);
+              this.latitude = message.latitude;
+              this.longitude = message.longitude;
+              console.log('Received message: ', message);
+            },
+            error: (error) => {
+              console.error('Subscription error: ', error);
+            },
+          });
+      })
+      .catch((error) => {
+        console.error('Connection error: ', error);
       });
-    }).catch(error => {
-      console.error("Connection error: ", error);
-    });
-  };
+  }
 
   public ngOnDestroy() {
     if (this.topicSubscription) {
       this.topicSubscription.unsubscribe();
     }
-  };
+  }
+  */
 }
-
