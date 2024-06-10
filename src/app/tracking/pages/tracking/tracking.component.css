@@ -1,0 +1,21 @@
+.trak-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* Divide en dos columnas */
+  margin: 0 auto;
+  /* Centrar la cuadrícula en la página */
+  gap: 20px;
+}
+
+.trak-info {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 600px) {
+  .trak-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* Divide en dos columnas */
+  }
+}

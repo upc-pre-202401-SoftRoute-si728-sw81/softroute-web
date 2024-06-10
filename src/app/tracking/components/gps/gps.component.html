@@ -1,0 +1,5 @@
+<google-map width="100%" mapId="map" [options]="options">
+  @for (position of markerPositions; track position) {
+  <map-advanced-marker [position]="position" />
+  }
+</google-map>

@@ -1,0 +1,26 @@
+.package-badge {
+    border-radius: var(--border-radius);
+    padding: .25em .5rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: .3px;
+
+    &.status-DELIVERED {
+        background: #C8E6C9;
+        color: #256029;
+    }
+
+    &.status-IN_TRANSIT {
+        background: #FFCDD2;
+        color: #C63737;
+    }
+
+    &.status-CREATED {
+        background: #FEEDAF;
+        color: #8A5340;
+    }
+}
+
+
+
