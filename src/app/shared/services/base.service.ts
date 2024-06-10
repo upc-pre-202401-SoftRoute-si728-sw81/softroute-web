@@ -33,9 +33,16 @@ export class BaseService<T> {
   private resourcePath() {
     return `${this.basePath}${this.resourceEndpoint}`;
   }
+
   create(item: any): Observable<T> {
     return this.http
       .post<T>(this.resourcePath(), JSON.stringify(item), this.httpOptions)
+      .pipe(retry(2), catchError(this.handleError));
+  }
+
+  getById(id: string): Observable<T> {
+    return this.http
+      .get<T>(this.resourcePath() + `/${id}`, this.httpOptions)
       .pipe(retry(2), catchError(this.handleError));
   }
 

@@ -8,7 +8,10 @@ export const routes: Routes = [
     path: '',
     component: AppLayoutComponent,
     children: [
-      { path: 'tracking', component: TrackingComponent },
+      {
+        path: 'tracking/:id',
+        component: TrackingComponent,
+      },
       {
         path: 'packages',
         component: PackagesComponent,

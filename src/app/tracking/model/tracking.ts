@@ -1,13 +1,14 @@
 export interface Tracking {
   id: string;
-  deviceId: string;
   trackingNumber: string;
-  trackingStatus: {
-    id: string;
-    status: string;
-    statusDetails: string;
-    statusDate: string;
-  };
-  location: Location;
+  status: string;
+  statusDate: string;
+  latitude: number;
+  longitude: number;
+  street: string;
+  district: string;
+  province: string;
+  country: string;
+  timestamp: string;
+  encodedPolyline: string;
 }
-
