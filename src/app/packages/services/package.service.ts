@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { BaseService } from '../../shared/services/base.service';
 import { Package } from '../models/package';
 import { HttpClient } from '@angular/common/http';
@@ -7,8 +7,6 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root',
 })
 export class PackageService extends BaseService<Package> {
-  constructor(http: HttpClient) {
-    super(http);
-    this.resourceEndpoint = '/packages';
-  }
+  protected override _http = inject(HttpClient);
+  protected override resourceEndpoint = '/packages';
 }

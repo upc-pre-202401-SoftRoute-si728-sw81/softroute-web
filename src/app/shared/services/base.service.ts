@@ -3,20 +3,21 @@ import {
   HttpClient,
   HttpErrorResponse,
   HttpHeaders,
+  HttpParams,
 } from '@angular/common/http';
+import { inject } from '@angular/core';
 import { catchError, Observable, retry, throwError } from 'rxjs';
 
 export class BaseService<T> {
+  protected _http = inject(HttpClient);
+  protected resourceEndpoint: string = '/resources';
   basePath: string = `${environment.serverBasePath}`;
-  resourceEndpoint: string = '/resources';
 
   httpOptions = {
     headers: new HttpHeaders({
       'Content-type': 'application/json',
     }),
   };
-
-  constructor(private http: HttpClient) {}
 
   handleError(error: HttpErrorResponse) {
     if (error.error instanceof ErrorEvent) {
@@ -30,30 +31,30 @@ export class BaseService<T> {
     );
   }
 
-  private resourcePath() {
+  public resourcePath() {
     return `${this.basePath}${this.resourceEndpoint}`;
   }
 
   create(item: any): Observable<T> {
-    return this.http
+    return this._http
       .post<T>(this.resourcePath(), JSON.stringify(item), this.httpOptions)
       .pipe(retry(2), catchError(this.handleError));
   }
 
   getById(id: string): Observable<T> {
-    return this.http
+    return this._http
       .get<T>(this.resourcePath() + `/${id}`, this.httpOptions)
       .pipe(retry(2), catchError(this.handleError));
   }
 
   delete(id: any) {
-    return this.http
+    return this._http
       .delete(`${this.resourcePath()}/${id}`, this.httpOptions)
       .pipe(retry(2), catchError(this.handleError));
   }
 
   update(id: any, item: any) {
-    return this.http
+    return this._http
       .put<T>(
         `${this.resourcePath()}/${id}`,
         JSON.stringify(item),
@@ -63,8 +64,22 @@ export class BaseService<T> {
   }
 
   getAll() {
-    return this.http
+    return this._http
       .get<T[]>(this.resourcePath(), this.httpOptions)
+      .pipe(retry(2), catchError(this.handleError));
+  }
+
+  getAllByQuery(queryParams: { [key: string]: any }) {
+    let params = new HttpParams();
+
+    Object.keys(queryParams).forEach((key) => {
+      if (queryParams[key] !== undefined && queryParams[key] !== null) {
+        params = params.set(key, queryParams[key]);
+      }
+    });
+
+    return this._http
+      .get<T[]>(this.resourcePath(), { params, ...this.httpOptions })
       .pipe(retry(2), catchError(this.handleError));
   }
 }
