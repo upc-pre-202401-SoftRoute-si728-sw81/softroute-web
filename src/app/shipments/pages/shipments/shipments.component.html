@@ -1,0 +1,208 @@
+<div class="grid nested-grid full">
+  <p-toast></p-toast>
+  <div class="col-12 md:col-4">
+    <div class="card h-full">
+      <h4 class="font-bold">Shipments</h4>
+      <p>Manage All your shipments</p>
+      <p-dataView
+        #dv
+        [value]="(shipments$ | async)!"
+        [paginator]="true"
+        [rows]="4"
+        [loading]="loadingShipments"
+        filterBy="code"
+      >
+        <ng-template pTemplate="header">
+          <div
+            class="grid grid-nogutter flex-column md:flex-row justify-content-between"
+          >
+            <span class="p-input-icon-left mb-2 md:mb-0 w-7">
+              <i class="pi pi-search"></i>
+              <input
+                type="search"
+                pInputText
+                class="w-full"
+                placeholder="Search by code"
+                (input)="onFilter(dv, $event)"
+              />
+            </span>
+            <p-button
+              label="Add"
+              icon="pi pi-plus"
+              (onClick)="openShipmentDialog()"
+            ></p-button>
+          </div>
+        </ng-template>
+
+        <ng-template let-shipments pTemplate="listItem">
+          <div class="grid grid-nogutter mt-2">
+            <div class="col-12">
+              @for (shipment of shipments; track $index) {
+              <div
+                class="flex flex-row p-3 shadow-1 mb-3 align-items-center hover:surface-100"
+                style="cursor: pointer"
+                (click)="onSelectedShipment(shipment)"
+              >
+                <div>
+                  <img src="assets/images/truck.png" alt="" class="h-5rem" />
+                </div>
+                <div class="ml-3">
+                  <span>#{{ shipment.code }}</span>
+                  <p class="font-bold mb-1">
+                    {{ shipment.carrier.firstName }} <br />{{
+                      shipment.carrier.lastName
+                    }}
+                  </p>
+                  <p class="mb-1">{{ shipment.createdAt | relativeTime }}</p>
+
+                  <span
+                    [class]="'shipment-badge status-' + shipment.status"
+                    style="font-size: 0.85rem"
+                    >{{ shipment.status }}</span
+                  >
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+        </ng-template>
+      </p-dataView>
+    </div>
+  </div>
+  <div class="col-12 md:col-8">
+    <div class="card w-full">
+      @if (selectedShipment().id) { @if (selectedShipment().status == "CREATED"
+      || selectedShipment().status == 'COMPLETED') {
+      <app-view-shipment [shipment]="selectedShipment()"></app-view-shipment>
+      } @else {
+      <p-tabView orientation="left">
+        <p-tabPanel header="Tracking" class="line-height-3 m-0">
+          <app-view-tracking-shipment
+            [shipment]="selectedShipment()"
+          ></app-view-tracking-shipment>
+        </p-tabPanel>
+        <p-tabPanel header="Packages" class="line-height-3 m-0">
+          <app-view-tracking-packages
+            [shipment]="selectedShipment()"
+          ></app-view-tracking-packages>
+        </p-tabPanel>
+        <p-tabPanel header="Information" class="line-height-3 m-0">
+        </p-tabPanel>
+      </p-tabView>
+      } }@else {
+      <div
+        class="flex h-full flex-column align-items-center justify-content-center"
+      >
+        <img src="assets/images/truck.png" alt="" class="h-5rem" />
+        Select a Shipment
+      </div>
+      }
+    </div>
+  </div>
+</div>
+<p-dialog
+  [(visible)]="shipmentDialog"
+  [style]="{ width: '850px', minHeight: '750px' }"
+  header="Create a shipment"
+  [modal]="true"
+  class="p-fluid"
+>
+  <ng-template pTemplate="content">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="field mb-3">
+        <label for="customer">Carrier*</label>
+        <p-autoComplete
+          formControlName="carrier"
+          [forceSelection]="true"
+          [suggestions]="filteredEmployees()"
+          (completeMethod)="filterEmployees($event)"
+          [dropdown]="true"
+          field="firstName"
+        >
+          <ng-template let-customer pTemplate="item">
+            <div class="flex align-items-center">
+              {{ customer.firstName }} {{ customer.lastName }}
+            </div>
+          </ng-template>
+        </p-autoComplete>
+      </div>
+
+      <div class="field mb-3">
+        <p-table
+          [value]="packages()"
+          [paginator]="true"
+          [rows]="4"
+          [(selection)]="selectedPackages"
+          dataKey="code"
+          [rowHover]="true"
+          responsiveLayout="scroll"
+        >
+          <ng-template pTemplate="header">
+            <tr>
+              <th style="width: 4rem"><p-tableHeaderCheckbox /></th>
+              <th>#</th>
+              <th>CUSTOMER</th>
+              <th>DESTINATION</th>
+              <th>DATE</th>
+              <th>STATUS</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-package>
+            <tr>
+              <td>
+                <p-tableCheckbox [value]="package" />
+              </td>
+
+              <td style="min-width: 3rem">
+                <p>{{ package.code }}</p>
+              </td>
+
+              <td style="min-width: 12rem">
+                <span class="font-bold">
+                  <p>{{ package.owner.names }} {{ package.owner.surnames }}</p>
+                </span>
+                <span>
+                  <p>(+51) {{ package.owner.phoneNumber }}</p>
+                </span>
+                <span>{{ package.owner.email }} </span>
+              </td>
+
+              <td style="min-width: 5rem">
+                <p>
+                  {{ package.destinationAddress }}
+                </p>
+              </td>
+
+              <td style="min-width: 3rem">
+                <p>{{ package.createdAt | dateFormat }}</p>
+              </td>
+
+              <td style="min-width: 4rem">
+                <span
+                  [class]="'package-badge status-' + package.status"
+                  style="font-size: 1rem"
+                  >{{ package.status }}</span
+                >
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="7">No packages found.</td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="loadingbody">
+            <tr>
+              <td colspan="7">Loading packages data. Please wait.</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <button
+        pButton
+        type="submit"
+        label="Create Shipment"
+        [disabled]="form.invalid"
+      ></button>
+    </form> </ng-template
+></p-dialog>

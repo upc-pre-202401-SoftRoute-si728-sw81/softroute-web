@@ -21,8 +21,10 @@ export class DateFormatPipe implements PipeTransform {
     const hours = date.getHours();
     const minutes = this.padZero(date.getMinutes());
 
+    const wa = hours > 12 ? 'pm' : 'am';
+
     // Retornar el formato deseado
-    return `${formattedDate} ${hours}:${minutes}`;
+    return `${formattedDate} ${hours}:${minutes} ${wa}`;
   }
 
   // Función auxiliar para añadir ceros a la izquierda si es necesario

@@ -4,5 +4,10 @@ export interface PackageReq {
   height: number;
   width: number;
   length: number;
-  ownerId: string; // UUID
+  destinationAddress: string;
+  customerId: string;
+  minTemperature: number;
+  maxTemperature: number;
+  minHumidity: number;
+  maxHumidity: number;
 }

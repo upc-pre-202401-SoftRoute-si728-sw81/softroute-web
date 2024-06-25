@@ -1230,10 +1230,11 @@ p-inputswitch.ng-dirty.ng-invalid > .p-inputswitch {
   left: 2.5rem;
 }
 
+.p-input-icon-right > .p-icon-wrapper,
 .p-input-icon-right > i:last-of-type {
-  right: 0.75rem;
-  color: #71717A;
-}
+    right: 0.75rem;
+    color: #71717a;
+  }
 
 .p-input-icon-right > .p-inputtext {
   padding-right: 2.5rem;

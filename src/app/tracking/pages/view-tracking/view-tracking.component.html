@@ -1,0 +1,81 @@
+<div class="grid nested-grid h-full">
+  <div class="col-12 md:col-3">
+    <div class="grid">
+      <div class="col-12">
+        <p-panel header="Information" class="line-height-3 m-0">
+          <div class="grid">
+            <div class="col-12">
+              <ul style="list-style: none; padding: 0; margin: 0">
+                <li class="flex justify-content-between">
+                  Driver: <span class="font-bold">Juan Carlos</span>
+                </li>
+                <li class="flex justify-content-between">
+                  Destination:
+                  <span class="font-bold">Calle los Reyes 211</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="col-12">
+              <ul style="list-style: none; padding: 0; margin: 0">
+                <li class="flex justify-content-between">
+                  Nro. Paquete: <span class="font-bold">PQT1234</span>
+                </li>
+                <li class="flex justify-content-between">
+                  Nro Tracking:
+                  <span class="font-bold">{{ tracking.trackingNumber }}</span>
+                </li>
+              </ul>
+            </div>
+            <div class="col-12">
+              <li class="flex justify-content-between align-items-center">
+                Status:
+                <span
+                  [class]="'package-badge status-IN_TRANSIT'"
+                  class="text-xl"
+                >
+                  {{ tracking.status }}
+                </span>
+              </li>
+            </div>
+          </div>
+        </p-panel>
+      </div>
+      <div class="col-12">
+        <p-panel header="Location" class="line-height-3 m-0">
+          <ul style="list-style: none; padding: 0; margin: 0">
+            <li>
+              Street
+              <h5>{{ tracking.street }}</h5>
+            </li>
+            <li>
+              District
+              <h5>{{ tracking.district }}</h5>
+            </li>
+            <li>
+              Province
+              <h5>{{ tracking.province }}</h5>
+            </li>
+            <li>
+              Country
+              <h5>{{ tracking.country }}</h5>
+            </li>
+            <li>
+              Date
+              <h5 class="mb-0">{{ tracking.timestamp | dateFormat }}</h5>
+            </li>
+          </ul>
+        </p-panel>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 md:col-9">
+    <p-panel header="Map Tracking" class="line-height-3 m-0">
+      <google-map width="100%" mapId="map" [options]="options">
+        <map-advanced-marker [position]="markerPosition!" />
+        <map-polyline [options]="polylineOptions"> </map-polyline>
+      </google-map>
+    </p-panel>
+  </div>
+</div>
