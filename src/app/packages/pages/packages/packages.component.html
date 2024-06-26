@@ -1,91 +1,149 @@
-<div class="grid">
-  <div class="col-12">
-    <p-toast></p-toast>
-    <div class="card flex justify-content-between">
-      <div>
-        <h4>Packages Management</h4>
-        <p>Manage all your packages</p>
-      </div>
-      <button
-        pButton
-        pRipple
-        label="New package"
-        icon="pi pi-plus"
-        (click)="openAddDialog()"
-      ></button>
-    </div>
-
-    <div class="card">
-      <p-table
-        [value]="packages()"
+<div class="grid nested-grid full">
+  <p-toast></p-toast>
+  <div class="col-12 md:col-5">
+    <div class="card h-full">
+      <h4 class="font-bold">Packages</h4>
+      <p>Manage All your packages</p>
+      <p-dataView
+        #dv
+        [value]="(packages$ | async)!"
         [paginator]="true"
-        [rows]="8"
-        responsiveLayout="scroll"
+        sortField="createdAt"
+        sortOrder="-1"
+        [rows]="4"
+        [loading]="loadingPackages"
+        filterBy="code"
       >
         <ng-template pTemplate="header">
-          <tr>
-            <th>#</th>
-            <th>Customer</th>
-            <th>Description</th>
-            <th>Details</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
+          <div
+            class="grid grid-nogutter flex-column md:flex-row justify-content-between"
+          >
+            <span class="p-input-icon-left mb-2 md:mb-0 w-7">
+              <i class="pi pi-search"></i>
+              <input
+                type="search"
+                pInputText
+                class="w-full"
+                placeholder="Search by code"
+                (input)="onFilter(dv, $event)"
+              />
+            </span>
+            <p-button
+              label="Add"
+              icon="pi pi-plus"
+              (onClick)="openAddDialog()"
+            ></p-button>
+          </div>
         </ng-template>
-        <ng-template pTemplate="body" let-package>
-          <tr>
-            <td style="min-width: 3rem">1</td>
 
-            <td style="min-width: 12rem">
-              <span class="font-bold">
-                <p>{{ package.owner.names }} {{ package.owner.surnames }}</p>
-              </span>
-              <span>
-                <p>(+51) {{ package.owner.phoneNumber }}</p>
-              </span>
-              <span>{{ package.owner.email }} </span>
-            </td>
-            <td style="min-width: 6rem">
-              {{ package.description }}
-            </td>
-            <td style="min-width: 12rem">
-              <ul style="padding: 0">
-                <li>
-                  <strong>Weight:</strong> {{ package.details.weight }} kg
-                </li>
-                <li><strong>Height:</strong> {{ package.details.height }} m</li>
-                <li><strong>Width:</strong> {{ package.details.width }} m</li>
-                <li><strong>Length:</strong> {{ package.details.length }} m</li>
-              </ul>
-            </td>
-            <td style="min-width: 4rem">
-              <span [class]="'package-badge status-' + package.status">{{
-                package.status
-              }}</span>
-            </td>
-            <td>
-              <i class="pi pi-trash"></i>
-            </td>
-          </tr>
+        <ng-template let-packages pTemplate="listItem">
+          <div class="grid grid-nogutter mt-2">
+            <div class="col-12">
+              @for (package of packages; track $index) {
+              <div
+                class="flex flex-row p-3 shadow-1 mb-3 align-items-center hover:surface-100"
+                style="cursor: pointer"
+                (click)="onSelectPackage(package)"
+              >
+                <div>
+                  <img src="assets/images/box.jpg" alt="" class="h-5rem" />
+                </div>
+                <div class="ml-3">
+                  <span>#{{ package.code }}</span>
+                  <p class="font-bold mb-1">
+                    {{ package.owner.names }} <br />{{ package.owner.surnames }}
+                  </p>
+                  <p class="mb-1">{{ package.createdAt | relativeTime }}</p>
+                  <span
+                    [class]="'package-badge status-' + package.status"
+                    style="font-size: 0.75rem"
+                    >{{ package.status }}</span
+                  >
+                </div>
+              </div>
+              }
+            </div>
+          </div>
         </ng-template>
-        <ng-template pTemplate="emptymessage">
-          <tr>
-            <td colspan="7">No packages found.</td>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="loadingbody">
-          <tr>
-            <td colspan="7">Loading packages data. Please wait.</td>
-          </tr>
-        </ng-template>
-      </p-table>
+      </p-dataView>
+    </div>
+  </div>
+  <div class="col-12 md:col-7">
+    <div class="card w-full">
+      @if (selectedPackage().id) {
+      <div class="flex fle-row justify-content-between align-items-center">
+        <div class="">
+          <h4 class="font-bold mb-1">ID #{{ selectedPackage().code }}</h4>
+          <p class="mb-3">{{ selectedPackage().createdAt | dateFormat }}</p>
+        </div>
+        <span
+          [class]="'package-badge status-' + selectedPackage().status"
+          style="font-size: 1.25rem"
+          >{{ selectedPackage().status }}</span
+        >
+      </div>
+
+      <p class="text-lg font-bold mb-3">Package Details</p>
+      <div class="text-mb flex flex-row">
+        <div class="">
+          <p>
+            <strong>Name:</strong>
+            {{ selectedPackage().owner.names }}
+            {{ selectedPackage().owner.surnames }}
+          </p>
+          <p>
+            <strong>Email:</strong>
+            {{ selectedPackage().owner.email }}
+          </p>
+          <p>
+            <strong>Phone Number:</strong> (+51)
+            {{ selectedPackage().owner.phoneNumber }}
+          </p>
+        </div>
+        <p-divider></p-divider>
+        <div>
+          <p>
+            <strong>Weight:</strong>
+            {{ selectedPackage().details.weight }} kg
+          </p>
+          <p>
+            <strong>Height:</strong>
+            {{ selectedPackage().details.height }} m
+          </p>
+          <p><strong>Width:</strong> {{ selectedPackage().details.width }} m</p>
+          <p>
+            <strong>Length:</strong>
+            {{ selectedPackage().details.length }} m
+          </p>
+        </div>
+      </div>
+      <p-divider></p-divider>
+      <div class="text-lg">
+        <p class="font-bold">Description</p>
+        <p>
+          {{ selectedPackage().description }}
+        </p>
+      </div>
+      <p-divider></p-divider>
+      <div class="text-lg">
+        <p class="font-bold">Images</p>
+      </div>
+      <p-divider></p-divider>
+      }@else {
+      <div
+        class="flex h-full flex-column align-items-center justify-content-center"
+      >
+        <img src="assets/images/box.jpg" alt="" class="h-5rem" />
+        Select a Package
+      </div>
+      }
     </div>
   </div>
 </div>
 
 <p-dialog
   [(visible)]="packageDialog"
-  [style]="{ width: '450px' }"
+  [style]="{ width: '500px' }"
   header="Add Package"
   [modal]="true"
   class="p-fluid"
@@ -93,7 +151,7 @@
   <ng-template pTemplate="content">
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <div class="field mb-3">
-        <label for="description">Description</label>
+        <label for="description">Description*</label>
         <textarea
           id="description"
           type="text"
@@ -110,38 +168,8 @@
           <small class="p-error">Description is required.</small>
         </div>
       </div>
-
       <div class="field mb-3">
-        <label for="weight">Weight (kg)</label>
-        <input id="weight" type="number" pInputText formControlName="weight" />
-        <div *ngIf="form.get('weight')?.invalid && form.get('weight')?.touched">
-          <small class="p-error">Weight must be positive.</small>
-        </div>
-      </div>
-      <div class="field mb-3">
-        <label for="height">Height (m)</label>
-        <input id="height" type="number" pInputText formControlName="height" />
-        <div *ngIf="form.get('height')?.invalid && form.get('height')?.touched">
-          <small class="p-error">Height must be positive.</small>
-        </div>
-      </div>
-      <div class="field mb-3">
-        <label for="width">Width (m)</label>
-        <input id="width" type="number" pInputText formControlName="width" />
-        <div *ngIf="form.get('width')?.invalid && form.get('width')?.touched">
-          <small class="p-error">Width must be positive.</small>
-        </div>
-      </div>
-      <div class="field mb-3">
-        <label for="length">Length (m)</label>
-        <input id="length" type="number" pInputText formControlName="length" />
-        <div *ngIf="form.get('length')?.invalid && form.get('length')?.touched">
-          <small class="p-error">Length must be positive.</small>
-        </div>
-      </div>
-
-      <div class="field mb-3">
-        <label for="customer">Customer</label>
+        <label for="customer">Customer*</label>
         <p-autoComplete
           formControlName="customer"
           [forceSelection]="true"
@@ -152,11 +180,132 @@
         >
           <ng-template let-customer pTemplate="item">
             <div class="flex align-items-center">
-              {{ customer.names }} {{ customer.surnames }} -
-              {{ customer.dni }}
+              {{ customer.names }} {{ customer.surnames }}
             </div>
           </ng-template>
         </p-autoComplete>
+      </div>
+
+      <h6 class="font-bold">Details</h6>
+      <div class="grid grid-nogutter">
+        <div class="col-4">
+          <div class="field mb-3">
+            <label for="weight">Weight* (kg)</label>
+            <input
+              id="weight"
+              type="number"
+              pInputText
+              formControlName="weight"
+            />
+            <div
+              *ngIf="form.get('weight')?.invalid && form.get('weight')?.touched"
+            >
+              <small class="p-error">Weight must be positive.</small>
+            </div>
+          </div>
+          <div class="field mb-3">
+            <label for="height">Height* (m)</label>
+            <input
+              id="height"
+              type="number"
+              pInputText
+              formControlName="height"
+            />
+            <div
+              *ngIf="form.get('height')?.invalid && form.get('height')?.touched"
+            >
+              <small class="p-error">Height must be positive.</small>
+            </div>
+          </div>
+          <div class="field mb-3">
+            <label for="width">Width* (m)</label>
+            <input
+              id="width"
+              type="number"
+              pInputText
+              formControlName="width"
+            />
+            <div
+              *ngIf="form.get('width')?.invalid && form.get('width')?.touched"
+            >
+              <small class="p-error">Width must be positive.</small>
+            </div>
+          </div>
+          <div class="field mb-3">
+            <label for="length">Length* (m)</label>
+            <input
+              id="length"
+              type="number"
+              pInputText
+              formControlName="length"
+            />
+            <div
+              *ngIf="form.get('length')?.invalid && form.get('length')?.touched"
+            >
+              <small class="p-error">Length must be positive.</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-1"></div>
+        <div class="col-7">
+          <label for="temperatureMin">Temperature (°C)</label>
+          <div class="mb-2"></div>
+          <div class="p-formgrid grid">
+            <div class="field col">
+              <input
+                pInputText
+                id="minTemperature"
+                type="number"
+                placeholder="min"
+                formControlName="minTemperature"
+              />
+            </div>
+            <div class="field col">
+              <input
+                pInputText
+                id="maxTemperature"
+                type="number"
+                placeholder="max"
+                formControlName="maxTemperature"
+              />
+            </div>
+          </div>
+          <label for="temperatureMin">Humidity (°%)</label>
+          <div class="mb-2"></div>
+          <div class="p-formgrid grid">
+            <div class="field col">
+              <input
+                pInputText
+                id="minHumidity"
+                type="number"
+                placeholder="min"
+                formControlName="minHumidity"
+              />
+            </div>
+            <div class="field col">
+              <input
+                pInputText
+                id="maxHimidity"
+                type="number"
+                placeholder="max"
+                formControlName="maxHumidity"
+              />
+            </div>
+          </div>
+          <div class="mb-2"></div>
+          <div class="grid">
+            <label for="destinationAddress">Destination Address</label>
+            <div class="field col-12">
+              <input
+                pInputText
+                id="destinationAddress"
+                type="text"
+                placeholder="Address"
+                formControlName="destinationAddress"
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       <button

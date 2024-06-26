@@ -14,7 +14,7 @@ import {
 } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
-
+import { DividerModule } from 'primeng/divider';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextareaModule } from 'primeng/inputtextarea';
@@ -22,9 +22,14 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PackageReq } from '../../models/package-req';
 import { MessageService } from 'primeng/api';
-import { CustomerService } from '../../../organization/services/customer.service';
-import { Customer } from '../../../organization/models/customer';
 import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
+import { DropdownModule } from 'primeng/dropdown';
+import { ClientService } from '../../../organization/services/client.service';
+import { Client } from '../../../organization/models/client';
+import { DataView, DataViewModule } from 'primeng/dataview';
+import { RelativeTimePipe } from '../../../shared/pipes/relative-time.pipe';
+import { PanelModule } from 'primeng/panel';
+import { EMPTY, Observable, finalize } from 'rxjs';
 
 @Component({
   selector: 'app-packages',
@@ -39,10 +44,15 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
     CommonModule,
     InputNumberModule,
     InputTextModule,
+    PanelModule,
     ReactiveFormsModule,
+    DataViewModule,
     ToastModule,
     AutoCompleteModule,
     DateFormatPipe,
+    DividerModule,
+    DropdownModule,
+    RelativeTimePipe,
   ],
   providers: [MessageService],
   templateUrl: './packages.component.html',
@@ -51,14 +61,18 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 export class PackagesComponent implements OnInit {
   private _packageService: PackageService = inject(PackageService);
   private _messageService: MessageService = inject(MessageService);
-  private _customerService: CustomerService = inject(CustomerService);
+  private _customerService: ClientService = inject(ClientService);
 
   private _fb: FormBuilder = inject(FormBuilder);
 
-  packages = signal<Package[]>([]);
-  customers = signal<Customer[]>([]);
+  packages$: Observable<Package[]> = EMPTY;
+  loadingPackages = true;
 
-  filteredCustomers = signal<Customer[]>([]);
+  customers = signal<Client[]>([]);
+
+  selectedPackage = signal<Package>({} as Package);
+
+  filteredCustomers = signal<Client[]>([]);
 
   packageDialog: boolean = false;
   submitted: boolean = false;
@@ -69,15 +83,31 @@ export class PackagesComponent implements OnInit {
     height: [null, [Validators.required, Validators.min(0)]],
     width: [null, [Validators.required, Validators.min(0)]],
     length: [null, [Validators.required, Validators.min(0)]],
+    minTemperature: [
+      null,
+      [Validators.required, Validators.min(-100), Validators.max(100)],
+    ],
+    maxTemperature: [
+      null,
+      [Validators.required, Validators.min(-100), Validators.max(100)],
+    ],
+    minHumidity: [null, [Validators.required, Validators.min(0)]],
+    maxHumidity: [
+      null,
+      [Validators.required, Validators.min(0), Validators.max(100)],
+    ],
+    destinationAddress: [null, [Validators.required]],
     customer: [null, Validators.required],
   });
 
-  display(customer: Customer): string {
+  display(customer: Client): string {
     return `${customer.names} ${customer.surnames}`;
   }
 
   ngOnInit(): void {
-    this._packageService.getAll().subscribe((data) => this.packages.set(data));
+    this.packages$ = this._packageService
+      .getAll()
+      .pipe(finalize(() => (this.loadingPackages = false)));
   }
 
   openAddDialog(): void {
@@ -88,8 +118,16 @@ export class PackagesComponent implements OnInit {
     });
   }
 
+  onSelectPackage(selectedPackage: Package): void {
+    this.selectedPackage.update((_) => selectedPackage);
+  }
+
+  onFilter(dv: DataView, event: Event): void {
+    dv.filter((event.target as HTMLInputElement).value, 'contains');
+  }
+
   filterCustomer(event: any) {
-    const filtered: Customer[] = [];
+    const filtered: Client[] = [];
     const query = event.query;
     for (let i = 0; i < this.customers().length; i++) {
       const customer = this.customers()[i];
@@ -103,16 +141,17 @@ export class PackagesComponent implements OnInit {
 
   onSubmit(): void {
     if (this.form.valid) {
+      const { customer, ...rest } = this.form.getRawValue();
+
       const req = {
-        ...this.form.getRawValue(),
-        ownerId: this.form.get('customer')!.value.id,
+        ...rest,
+        customerId: this.form.get('customer')!.value.id,
       } as PackageReq;
 
+      console.log(req);
       this._packageService.create(req).subscribe({
         next: (response) => {
-          const updated = this.packages();
-          updated.push(response);
-          this.packages.update(() => updated);
+          this.packages$ = this._packageService.getAll();
           this._messageService.add({
             severity: 'success',
             summary: 'Successful',

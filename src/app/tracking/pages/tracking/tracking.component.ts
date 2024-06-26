@@ -1,12 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  OnInit,
-  ViewChild,
-  inject,
-} from '@angular/core';
-import { GpsComponent } from '../../components/gps/gps.component';
-import { Dth22Component } from '../../components/dth22/dth22.component';
+import { AfterViewInit, Component, OnInit, inject } from '@angular/core';
 import { Tracking } from '../../model/tracking';
 import { PanelModule } from 'primeng/panel';
 import { CardModule } from 'primeng/card';
@@ -17,15 +9,14 @@ import { DateFormatPipe } from '../../../shared/pipes/date-format.pipe';
 import { GoogleMap, MapAdvancedMarker } from '@angular/google-maps';
 import { LatLng, decode } from '@googlemaps/polyline-codec';
 import { GoogleMapsModule } from '@angular/google-maps';
-import { Subscription } from 'rxjs';
 import { TrackingSocketsService } from '../../websockets/tracking-sockets.service';
 
 @Component({
   selector: 'app-tracking',
   standalone: true,
+  templateUrl: './tracking.component.html',
+  styleUrl: './tracking.component.css',
   imports: [
-    GpsComponent,
-    Dth22Component,
     PanelModule,
     CardModule,
     DividerModule,
@@ -34,16 +25,11 @@ import { TrackingSocketsService } from '../../websockets/tracking-sockets.servic
     MapAdvancedMarker,
     GoogleMapsModule,
   ],
-  templateUrl: './tracking.component.html',
-  styleUrl: './tracking.component.css',
 })
 export class TrackingComponent implements OnInit, AfterViewInit {
-  private _topicSubscription!: Subscription;
   private _router = inject(ActivatedRoute);
   private _trackingService = inject(TrackingService);
   private _trackingSocketService = inject(TrackingSocketsService);
-
-  @ViewChild('map') map!: google.maps.Map;
 
   tracking: Tracking = {} as Tracking;
   id = '';
@@ -94,7 +80,7 @@ export class TrackingComponent implements OnInit, AfterViewInit {
     this._trackingSocketService
       .connect()
       .then(() => {
-        this._topicSubscription = this._trackingSocketService
+        this._trackingSocketService
           .subscribe('/topic/tracking/' + this.id)
           .subscribe({
             next: (message) => {
