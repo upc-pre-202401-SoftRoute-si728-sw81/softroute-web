@@ -18,8 +18,11 @@ export class TrackingSocketsService implements OnDestroy {
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
+      connectHeaders: {
+    Authorization: `Bearer `
+  },
       webSocketFactory: () => {
-        return new SockJS('http://34.23.72.178:8080/ws');
+        return new SockJS('http://35.237.111.37:8080/ws');
       },
     });
   }

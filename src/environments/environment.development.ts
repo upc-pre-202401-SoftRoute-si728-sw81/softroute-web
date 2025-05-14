@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  serverBasePath: 'http://34.23.72.178:8080/api/v1',
+  serverBasePath: 'http://35.237.111.37:8080/api/v1',
 };
